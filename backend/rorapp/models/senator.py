@@ -79,6 +79,8 @@ class Senator(models.Model):
     talents = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     generation = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     location = models.CharField(max_length=20, default="Rome")
+    corrupt = models.BooleanField(default=False)
+    rebel = models.BooleanField(default=False)
 
     # Avoid using these directly - use helper methods instead
     status_items = models.JSONField(default=list, blank=True)

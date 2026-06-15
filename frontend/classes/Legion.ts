@@ -7,6 +7,7 @@ export interface LegionData {
   name: string
   strength: number
   campaign: number | null
+  province: number | null
 }
 
 class Legion {
@@ -18,6 +19,7 @@ class Legion {
   name: string
   strength: number
   campaign: number | null
+  province: number | null
 
   constructor(data: LegionData) {
     this.id = data.id
@@ -28,6 +30,7 @@ class Legion {
     this.name = data.name
     this.strength = data.strength
     this.campaign = data.campaign
+    this.province = data.province
   }
 }
 

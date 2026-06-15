@@ -40,6 +40,7 @@ from .proposal_reinforce_proconsul import ProposalReinforceProconsulEffect
 from .proposal_replace_proconsul import ProposalReplaceProconsulEffect
 from .redistribution_done import RedistributionDoneEffect
 from .revenue import RevenueEffect
+from .returning_governors import ReturningGovernorsEffect
 from .card_trading_done import CardTradingDoneEffect
 from .revolution_phase_end import RevolutionPhaseEndEffect
 from .revolution_phase_start import RevolutionPhaseStartEffect

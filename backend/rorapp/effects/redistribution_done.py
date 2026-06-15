@@ -15,6 +15,11 @@ class RedistributionDoneEffect(EffectBase):
         )
 
     def execute(self, game_id: int, random_resolver: RandomResolver) -> bool:
+        # §1.06.6 Returning Governors must happen at the end of the Revenue
+        # Phase (after players finish redistribution, before advancing to
+        # the Forum phase). It is called here so it executes exactly once.
+        from rorapp.helpers.returning_governors import return_governors
+        return_governors(game_id)
 
         # Remove done status
         factions = Faction.objects.filter(game=game_id)

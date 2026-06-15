@@ -6,7 +6,7 @@ from rorapp.classes.concession import Concession
 from rorapp.helpers.game_data import get_senator_codes, load_senators
 from rorapp.helpers.hrao import set_hrao
 from rorapp.helpers.text import format_list
-from rorapp.models import Campaign, Faction, Fleet, Game, Legion, Log, Senator
+from rorapp.models import Campaign, Faction, Fleet, Game, Legion, Log, Province, Senator
 
 
 class CauseOfDeath(Enum):
@@ -48,6 +48,8 @@ def kill_senator(senator: Senator, cause_of_death: CauseOfDeath = CauseOfDeath.N
     senator.knights = 0
     senator.talents = 0
     senator.clear_corrupt_concessions()
+    senator.corrupt = False
+    senator.rebel = False
 
     for concession in senator.get_concessions():
         game.add_concession(concession)
@@ -140,6 +142,14 @@ def kill_senator(senator: Senator, cause_of_death: CauseOfDeath = CauseOfDeath.N
             concession_log += f" {concession_list} concessions"
         concession_log += " available."
         Log.create_object(game.id, text=concession_log)
+
+    # Per mortality rules (1.05), if the senator was a Governor return his
+    # Provinces (along with any Garrison Legions) to the Forum.
+    governed_provinces = list(Province.objects.filter(game=game, governor=senator))
+    for prov in governed_provinces:
+        prov.governor_id = None
+    if governed_provinces:
+        Province.objects.bulk_update(governed_provinces, ["governor"])
 
     # Handle HRAO death by setting new HRAO
     if was_hrao:

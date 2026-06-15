@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from rorapp.models.campaign import Campaign
 from rorapp.models.game import Game
 from rorapp.models.senator import Senator
+from rorapp.models.province import Province
 
 
 class Legion(models.Model):
@@ -22,6 +23,13 @@ class Legion(models.Model):
     )
     campaign = models.ForeignKey(
         Campaign,
+        related_name="legions",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    province = models.ForeignKey(
+        Province,
         related_name="legions",
         blank=True,
         null=True,

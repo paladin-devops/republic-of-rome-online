@@ -28,5 +28,7 @@ class SenatorSerializer(serializers.ModelSerializer):
             "concessions",
             "corrupt_concessions",
             "location",
+            "corrupt",
+            "rebel",
             "display_name",
         ]

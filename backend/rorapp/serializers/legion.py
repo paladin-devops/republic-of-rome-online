@@ -15,4 +15,5 @@ class LegionSerializer(serializers.ModelSerializer):
             "name",
             "strength",
             "campaign",
+            "province",
         ]

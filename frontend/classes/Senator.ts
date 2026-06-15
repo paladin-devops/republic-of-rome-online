@@ -20,6 +20,8 @@ export interface SenatorData {
   concessions: string[]
   corrupt_concessions: string[]
   location: string
+  corrupt: boolean
+  rebel: boolean
 
   display_name: string
 }
@@ -46,6 +48,8 @@ class Senator {
   concessions: string[]
   corruptConcessions: string[]
   location: string
+  corrupt: boolean
+  rebel: boolean
 
   displayName: string
 
@@ -71,6 +75,8 @@ class Senator {
     this.concessions = data.concessions
     this.corruptConcessions = data.corrupt_concessions
     this.location = data.location
+    this.corrupt = data.corrupt ?? false
+    this.rebel = data.rebel ?? false
 
     this.displayName = data.display_name
   }
