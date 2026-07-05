@@ -4,6 +4,8 @@ from rorapp.models import Province
 
 
 class ProvinceSerializer(serializers.ModelSerializer):
+    governor = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Province
         fields = [
@@ -12,4 +14,7 @@ class ProvinceSerializer(serializers.ModelSerializer):
             "name",
             "developed",
             "frontier",
+            "governor",
+            "term",
+            "elected_this_turn",
         ]

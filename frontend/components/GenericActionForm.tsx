@@ -456,6 +456,9 @@ const GenericActionForm = ({
     } else if (objectClass === "senator") {
       const senator = publicGameState.senators.find((s) => s.id === id)
       return <>{toSentenceCase(senator?.displayName ?? "")}</>
+    } else if (objectClass === "province") {
+      const province = publicGameState.provinces.find((p) => p.id === id)
+      return <>{province?.name ?? ""}</>
     } else if (objectClass === "war") {
       const war = publicGameState.wars.find((w) => w.id === id)
       return <>{toSentenceCase(war?.name ?? "")}</>

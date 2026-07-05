@@ -75,18 +75,47 @@ export async function skipToNextPhase(
 export interface ForumProvinceSeed {
   name: string
   developed?: boolean
+  governorFamilyName?: string
+  governorFactionPosition?: number
+  term?: number
+}
+
+export interface CreatedForumProvince {
+  id: number
+  name: string
+  developed: boolean
+  frontier: boolean
+  governor: number | null
+  governor_display_name: string | null
+  term: number | null
 }
 
 export async function createForumProvinces(
   context: APIRequestContext,
   gameId: number,
   provinces: ForumProvinceSeed[],
-): Promise<void> {
+): Promise<CreatedForumProvince[]> {
   const response = await context.post(
     `${BACKEND}/api/test/create-forum-provinces/${gameId}/`,
-    { data: { provinces } },
+    {
+      data: {
+        provinces: provinces.map((province) => ({
+          name: province.name,
+          developed: province.developed ?? false,
+          ...(province.governorFamilyName
+            ? { governor_family_name: province.governorFamilyName }
+            : {}),
+          ...(province.governorFactionPosition !== undefined
+            ? { governor_faction_position: province.governorFactionPosition }
+            : {}),
+          ...(province.term !== undefined ? { term: province.term } : {}),
+        })),
+      },
+    },
   )
   expect(response.ok()).toBeTruthy()
+  const { provinces: created } = await response.json()
+  return created
 }
 
 export async function enterAttractKnightWithInitiative(

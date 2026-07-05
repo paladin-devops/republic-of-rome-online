@@ -10,6 +10,7 @@ from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from rorapp.helpers.governor_election import assign_governor
 from rorapp.helpers.phase_transition import advance_to_next_phase
 from rorapp.helpers.provinces import province_static_fields
 from rorapp.game_state.send_game_state import send_game_state
@@ -224,12 +225,74 @@ def test_create_forum_provinces(request, game_id: int):
             developed=developed,
             **province_static_fields(name),
         )
+        governor = entry.get("governor_family_name")
+        governor_faction_position = entry.get("governor_faction_position")
+        if governor or governor_faction_position is not None:
+            senator = None
+            if governor_faction_position is not None:
+                try:
+                    faction = Faction.objects.get(
+                        game_id=game_id,
+                        position=int(governor_faction_position),
+                    )
+                except (Faction.DoesNotExist, TypeError, ValueError):
+                    return JsonResponse(
+                        {
+                            "detail": (
+                                "Faction not found for governor_faction_position: "
+                                f"{governor_faction_position}"
+                            )
+                        },
+                        status=400,
+                    )
+                senator = (
+                    Senator.objects.filter(
+                        game_id=game_id,
+                        faction=faction,
+                        alive=True,
+                    )
+                    .order_by("id")
+                    .first()
+                )
+                if not senator:
+                    return JsonResponse(
+                        {
+                            "detail": (
+                                "No alive senator found for governor_faction_position: "
+                                f"{governor_faction_position}"
+                            )
+                        },
+                        status=400,
+                    )
+            else:
+                try:
+                    senator = Senator.objects.get(
+                        game_id=game_id,
+                        family_name=governor,
+                        alive=True,
+                    )
+                except Senator.DoesNotExist:
+                    return JsonResponse(
+                        {
+                            "detail": f"Senator not found for governor: {governor}"
+                        },
+                        status=400,
+                    )
+            assign_governor(province, senator)
+            if "term" in entry:
+                province.term = entry["term"]
+                province.save()
         created.append(
             {
                 "id": province.id,
                 "name": province.name,
                 "developed": province.developed,
                 "frontier": province.frontier,
+                "governor": province.governor_id,
+                "governor_display_name": (
+                    province.governor.display_name if province.governor_id else None
+                ),
+                "term": province.term,
             }
         )
 

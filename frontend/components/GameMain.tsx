@@ -444,7 +444,26 @@ const GameMain = ({ publicGameState, privateGameState }: Props) => {
                         Frontier
                       </div>
                     )}
+                    {province.governor == null ? (
+                      <div className="flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-center text-sm text-neutral-700">
+                        Vacant
+                      </div>
+                    ) : (
+                      province.term != null && (
+                        <div className="flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-center text-sm text-sky-900">
+                          Term {province.term}
+                        </div>
+                      )
+                    )}
                   </div>
+                  {province.governor != null && (
+                    <p className="text-sm text-neutral-600">
+                      Governor:{" "}
+                      {publicGameState.senators.find(
+                        (s) => s.id === province.governor,
+                      )?.displayName ?? "Unknown"}
+                    </p>
+                  )}
                 </div>
               ))}
           </div>

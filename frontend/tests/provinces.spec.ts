@@ -5,10 +5,18 @@ import { createForumProvinces, deleteGame, setupGame } from "./helpers/game"
 
 const TIMEOUT = 15000
 
-function provinceCard(page: Page, name: string) {
+function provincesSection(page: Page) {
   return page
+    .locator("div")
+    .filter({ has: page.getByRole("heading", { name: "Provinces", exact: true }) })
+}
+
+function provinceCard(page: Page, name: string) {
+  return provincesSection(page)
     .locator("div.rounded.border")
-    .filter({ has: page.getByRole("heading", { name }) })
+    .filter({
+      has: page.getByRole("heading", { name, exact: true, level: 4 }),
+    })
 }
 
 test.describe("provinces", () => {
@@ -63,6 +71,51 @@ test.describe("provinces", () => {
     const macedonia = provinceCard(page, "Macedonia")
     await expect(macedonia.getByText("Developed")).toBeVisible()
     await expect(macedonia.getByText("Frontier")).toBeVisible()
+  })
+
+  test("displays vacant and governed province details", async ({
+    page,
+    playwright,
+  }) => {
+    // Arrange
+    const created = await createForumProvinces(players[0].api, gameId, [
+      { name: "Sicilia", developed: false },
+      {
+        name: "Macedonia",
+        developed: true,
+        governorFactionPosition: 1,
+      },
+    ])
+    const macedoniaSeed = created.find((province) => province.name === "Macedonia")
+    const governorDisplayName = macedoniaSeed?.governor_display_name
+    expect(governorDisplayName).toBeTruthy()
+
+    await loginAsBrowserUser(
+      playwright.request,
+      page.context(),
+      players[0].username,
+    )
+
+    // Act
+    await page.goto(`/games/${gameId}/live`)
+
+    // Assert
+    await expect(page.getByRole("heading", { name: "Provinces" })).toBeVisible({
+      timeout: TIMEOUT,
+    })
+
+    const sicilia = provinceCard(page, "Sicilia")
+    await expect(sicilia.getByText("Vacant")).toBeVisible({ timeout: TIMEOUT })
+    await expect(sicilia.getByText("Governor:")).not.toBeVisible()
+
+    const macedonia = provinceCard(page, "Macedonia")
+    await expect(
+      macedonia.getByText(`Governor: ${governorDisplayName}`),
+    ).toBeVisible({
+      timeout: TIMEOUT,
+    })
+    await expect(macedonia.getByText("Term 3")).toBeVisible({ timeout: TIMEOUT })
+    await expect(macedonia.getByText("Vacant")).not.toBeVisible()
   })
 
   test("hides provinces section when there are no provinces", async ({

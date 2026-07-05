@@ -1,6 +1,10 @@
 from rorapp.classes.faction_status_item import FactionStatusItem
 from rorapp.classes.game_effect_item import GameEffect
 from rorapp.helpers.game_data import load_land_bills
+from rorapp.helpers.governor_candidates import (
+    get_eligible_governor_candidates,
+    vacant_forum_provinces,
+)
 from rorapp.models import Senator
 from rorapp.models.game import Game
 
@@ -22,6 +26,17 @@ def censor_election_proposal_available(game_state) -> bool:
 
 def dictator_election_proposal_available(game_state) -> bool:
     return censor_election_proposal_available(game_state)
+
+
+def governor_election_proposal_available(game_state) -> bool:
+    if any(
+        f.has_status_item(FactionStatusItem.CALLED_TO_VOTE)
+        for f in game_state.factions
+    ):
+        return False
+    if not vacant_forum_provinces(game_state.game.id):
+        return False
+    return bool(get_eligible_governor_candidates(game_state.senators))
 
 
 def awarding_concession_proposal_available(game_state) -> bool:
