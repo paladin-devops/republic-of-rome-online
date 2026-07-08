@@ -336,11 +336,13 @@ class ElectGovernorAction(ActionBase):
             return ExecutionResult(True)
 
         try:
+            province_id = int(selection["Province"])
+            senator_id = int(selection["Governor"])
             province = Province.objects.get(
-                game_id=game_id, id=selection["Province"], governor__isnull=True
+                game_id=game_id, id=province_id, governor__isnull=True
             )
-            senator = next(s for s in senators if s.id == selection["Governor"])
-        except (Province.DoesNotExist, KeyError, TypeError, StopIteration):
+            senator = next(s for s in senators if s.id == senator_id)
+        except (Province.DoesNotExist, KeyError, TypeError, ValueError, StopIteration):
             return ExecutionResult(False, "Invalid province or governor selection.")
 
         error = self._validate_pairing(game, province, senator)

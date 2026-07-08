@@ -91,10 +91,12 @@ def test_governor_elected_leaves_rome_and_assigns_term(
     province = Province.objects.get(game=game, name="Sicilia")
     faction = Faction.objects.get(id=pm.faction_id)
 
+    # Use string IDs (as produced by JSON.stringify on the frontend) to exercise
+    # the coercion path in ElectGovernorAction.execute for the single-province case.
     result = ElectGovernorAction().execute(
         game.id,
         faction.id,
-        {"Province": province.id, "Governor": candidate.id},
+        {"Province": str(province.id), "Governor": str(candidate.id)},
         FakeRandomResolver(),
     )
     assert result.success
